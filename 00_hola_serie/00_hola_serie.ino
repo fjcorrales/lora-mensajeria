@@ -38,7 +38,7 @@ void loop() {
       pausa = false;
       Serial.println("Contador reanudado");
 
-    }else if(comando != "pausa" || comando !="seguir"){
+    }else{
 
       Serial.println("La ESP32 ha leído: " + comando);
     
