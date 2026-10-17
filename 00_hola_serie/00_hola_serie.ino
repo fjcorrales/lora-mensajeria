@@ -2,11 +2,12 @@
 const unsigned long SEGUNDO = 1000;
 
 //ESPACIO DE VARIABLES
-int number = 0;
+int x = 0;
 unsigned long ultimaVez = 0;
 bool pausa = true;
 String nombreUsuario = "Anonimo";
 String sala = "general";
+String historial[5];
 
 void setup() {
   Serial.begin(115200);
@@ -18,9 +19,9 @@ void loop() {
   //Bloque de contador
   if((millis() - ultimaVez) >= SEGUNDO && !pausa){
 
-    //Serial.println("Hola: " + String(number));
+    //Serial.println("Hola: " + String(x));
     //ultimaVez = millis();
-    //number = number + 1; 
+    //x = x + 1; 
 
   }
 
@@ -54,8 +55,6 @@ void loop() {
         nombreUsuario = nombreUsuario2;
 
       }
-      
-      
 
     }else if(comando.startsWith("/sala ") || comando.equals("/sala")){
 
@@ -72,7 +71,27 @@ void loop() {
 
       }
 
+    }else if(comando.startsWith("/historial ") || comando.equals("/historial")){
+
+      Serial.println("Los ultimos cinco mensajes han sido: ");
+      for (int i = 0; i < 5; i++){
+        
+        if(historial[i].length() != 0){
+
+          Serial.println(historial[i]);
+
+        }
+
+      }
+
     }else{
+      
+      historial[x] = "[" + sala + "] " + nombreUsuario + ": " + comando;
+      if(x<4){
+        x++;
+      }else{
+        x = 0;
+      }
 
       Serial.println("[" + sala + "] " + nombreUsuario + ": " + comando);
     
