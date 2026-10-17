@@ -75,10 +75,10 @@ void loop() {
 
       Serial.println("Los ultimos cinco mensajes han sido: ");
       for (int i = 0; i < 5; i++){
-        
-        if(historial[i].length() != 0){
+        int indice = (x+i)%5;
+        if(historial[indice].length() != 0){
 
-          Serial.println(historial[i]);
+          Serial.println(historial[indice]);
 
         }
 
