@@ -4,7 +4,8 @@ const unsigned long SEGUNDO = 1000;
 //ESPACIO DE VARIABLES
 int number = 0;
 unsigned long ultimaVez = 0;
-bool pausa = false;
+bool pausa = true;
+String nombreUsuario = "Anonimo";
 
 void setup() {
   Serial.begin(115200);
@@ -16,9 +17,9 @@ void loop() {
   //Bloque de contador
   if((millis() - ultimaVez) >= SEGUNDO && !pausa){
 
-    Serial.println("Hola: " + String(number));
-    ultimaVez = millis();
-    number = number + 1; 
+    //Serial.println("Hola: " + String(number));
+    //ultimaVez = millis();
+    //number = number + 1; 
 
   }
 
@@ -38,9 +39,15 @@ void loop() {
       pausa = false;
       Serial.println("Contador reanudado");
 
+    }else if(comando.startsWith("/nombre ")){
+
+      nombreUsuario = comando.substring(8);
+      Serial.println("Nombre registrado: " + nombreUsuario);
+      
+
     }else{
 
-      Serial.println("La ESP32 ha leído: " + comando);
+      Serial.println(nombreUsuario + ": " + comando);
     
     }
 
