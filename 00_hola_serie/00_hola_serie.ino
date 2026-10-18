@@ -1,3 +1,11 @@
+//DEFINICION DE ESTRUCTURAS
+struct Mensaje{
+  String remitente;
+  String sala;
+  String texto;
+  unsigned int id;
+};
+
 //ESPACIO DE CONSTANTES
 const unsigned long SEGUNDO = 1000;
 
@@ -7,8 +15,10 @@ unsigned long ultimaVez = 0;
 bool pausado = true;
 String nombreUsuario = "Anonimo";
 String sala = "general";
-String historial[5];
+Mensaje historial[5];
+unsigned int siguienteId = 1;
 
+//SETUP Y LOOP
 void setup() {
   Serial.begin(115200);
   delay(2000);
@@ -101,24 +111,34 @@ void cambioSala(String comando){
 }
 
 void guardarMsg(String comando){
-  String linea = "[" + sala + "] " + nombreUsuario + ": " + comando;
-  historial[x] = linea;
+  Mensaje msg;
+  msg.remitente = nombreUsuario;
+  msg.sala = sala;
+  msg.texto = comando;
+  msg.id = siguienteId;
+  siguienteId++;
+  historial[x] = msg;
   if(x<4){
     x++;
   }else{
     x = 0;
   }
-  Serial.println(linea);
+  Serial.println(formatear(msg));
 }
 
 void printHistorial(){
   Serial.println("Historial: ");
   for (int i = 0; i < 5; i++){
     int indice = (x+i)%5;
-    if(historial[indice].length() != 0){
+    if(historial[indice].id != 0){
 
-      Serial.println(historial[indice]);
+      Serial.println(formatear(historial[indice]));
 
     }
   }  
+}
+
+String formatear(Mensaje m){
+  String linea = "#" + String(m.id) + " " + "[" + m.sala + "] " + m.remitente + ": " + m.texto;
+  return linea;
 }
