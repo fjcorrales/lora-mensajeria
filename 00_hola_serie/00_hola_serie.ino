@@ -30,17 +30,29 @@ void loop() {
 
     String comando = Serial.readStringUntil('\n');
     comando.trim();
+    if(comando.length()==0){return;}    //control de mensaje vacio
 
-    if(comando=="pausa"){
-      pausa();
-    }else if(comando=="seguir"){
-      seguir();
-    }else if(comando.startsWith("/nombre ") || comando.equals("/nombre")){
-      nombre(comando);
-    }else if(comando.startsWith("/sala ") || comando.equals("/sala")){
-      cambioSala(comando);
-    }else if(comando.startsWith("/historial ") || comando.equals("/historial")){
-      printHistorial();
+    if(comando.startsWith("/")){
+      if(comando.equals("/")){
+        Serial.println("Comandos aceptados actualmente:");
+        Serial.println("/pausa: pausa la ejecucion del contador");
+        Serial.println("/seguir: reinicia la ejecucion del contador");
+        Serial.println("/nombre [nombre]: cambia el nombre del remitente o devuelve el nombre actual");
+        Serial.println("/sala [nombre de sala]: cambia la sala o devuelve la sala actual");
+        Serial.println("/historial: devuelve los ultimos 5 mensajes enviados");
+      }else if(comando.startsWith("/pausa ") || comando.equals("/pausa")){
+        pausa();
+      }else if(comando.startsWith("/seguir ") || comando.equals("/seguir")){
+        seguir();
+      }else if(comando.startsWith("/nombre ") || comando.equals("/nombre")){
+        nombre(comando);
+      }else if(comando.startsWith("/sala ") || comando.equals("/sala")){
+        cambioSala(comando);
+      }else if(comando.startsWith("/historial ") || comando.equals("/historial")){
+        printHistorial(); 
+      }else{
+        Serial.println("El comando introducido no esta registrado escribe '/' para recibir el listado de comandos disponibles");
+      }
     }else{
       guardarMsg(comando);
     }
