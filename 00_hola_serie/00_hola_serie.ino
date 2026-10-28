@@ -1,4 +1,4 @@
-//DEFINICION DE ESTRUCTURAS
+//ESPACIO DE ESTRUCTURAS
 struct Mensaje{
   String remitente;
   int indiceSala;
@@ -12,22 +12,19 @@ struct Sala{
   int x = 0;
 };
 
+//ESPACIO DE ENUM
+enum Pantalla{MENU, CHAT, AJUSTES, EDITAR_NOMBRE};
+
 //ESPACIO DE CONSTANTES
-const unsigned long SEGUNDO = 1000;
 const int MAX_SALAS = 4;
 
 //ESPACIO DE VARIABLES
-//int x = 0;
-//String sala = "general";
-//Mensaje historial[5];
-
 int totalSalas = 0;
 int salaActual = 0;
 unsigned int siguienteId = 1;   //identificador de mensajes no de usuarios
-unsigned long ultimaVez = 0;
-bool pausado = true;
 String nombreUsuario = "Anonimo";
 Sala salas[MAX_SALAS];
+Pantalla pantallaActual = MENU;
 
 //SETUP Y LOOP
 void setup() {
@@ -36,19 +33,10 @@ void setup() {
   salas[0].nombreSala = "general";
   salas[0].x = 0;
   totalSalas = 1;
+  cambiarPantalla(MENU);
 }
 
 void loop() {
-  
-  //Bloque de contador
-  if((millis() - ultimaVez) >= SEGUNDO && !pausado){
-
-    //Serial.println("Hola: " + String(x));
-    //ultimaVez = millis();
-    //x = x + 1; 
-
-  }
-
   //Bloque de eco
   if(Serial.available()){
 
@@ -56,47 +44,24 @@ void loop() {
     comando.trim();
     if(comando.length()==0){return;}    //control de mensaje vacio
 
-    if(comando.startsWith("/")){
-      if(comando.equals("/")){
-        Serial.println("Comandos aceptados actualmente:");
-        Serial.println("/pausa: pausa la ejecucion del contador");
-        Serial.println("/seguir: reinicia la ejecucion del contador");
-        Serial.println("/nombre [nombre]: cambia el nombre del remitente o devuelve el nombre actual");
-        Serial.println("/sala [nombre de sala]: cambia la sala o devuelve la sala actual");
-        Serial.println("/salas: lista las salas disponibles actualmente");
-        Serial.println("/historial: devuelve los ultimos 5 mensajes enviados");
-      }else if(comando.startsWith("/pausa ") || comando.equals("/pausa")){
-        pausa();
-      }else if(comando.startsWith("/seguir ") || comando.equals("/seguir")){
-        seguir();
-      }else if(comando.startsWith("/nombre ") || comando.equals("/nombre")){
-        nombre(comando);
-      }else if(comando.startsWith("/sala ") || comando.equals("/sala")){
-        cambioSala(comando);
-      }else if(comando.startsWith("/salas ") || comando.equals("/salas")){
-        printSalas(); 
-      }else if(comando.startsWith("/historial ") || comando.equals("/historial")){
-        printHistorial(); 
-      }else{
-        Serial.println("El comando introducido no esta registrado escribe '/' para recibir el listado de comandos disponibles");
-      }
-    }else{
-      guardarMsg(comando);
+    switch(pantallaActual){
+      case MENU:
+        procesarMenu(comando);
+        break;
+      case CHAT:
+        procesarChat(comando);
+        break;
+      case AJUSTES:
+        procesarAjustes(comando);
+        break;
+      case EDITAR_NOMBRE:
+        procesarEditarNombre(comando);
+        break;
     }
   }
 }
 
 //ESPACIO DE FUNCIONES
-void pausa(){
-  pausado = true;
-  Serial.println("Contador pausado");
-}
-
-void seguir(){
-  pausado = false;
-  Serial.println("Contador reanudado");
-}
-
 void nombre(String comando){
   String nombreUsuario2 = comando.substring(8);
   nombreUsuario2.trim();
@@ -189,4 +154,87 @@ void printSalas(){
   for(int i = 0 ; i<totalSalas ; i++){
     Serial.println(salas[i].nombreSala);
   }
+}
+
+void cambiarPantalla(Pantalla nueva){
+  pantallaActual = nueva;
+  dibujarPantalla();
+}
+
+void dibujarPantalla(){
+  switch(pantallaActual){
+    case MENU:
+      Serial.println("=== MENU ===");
+      Serial.println("1. Chat");
+      Serial.println("2. Ajustes");
+      break;
+    case CHAT:
+      Serial.println("=== CHAT (sala: " + salas[salaActual].nombreSala + ") ===");
+      break;
+    case AJUSTES:
+      Serial.println("=== AJUSTES ===");
+      Serial.println("1. Cambiar nombre");
+      Serial.println("0. Volver");
+      break;
+    case EDITAR_NOMBRE:
+      Serial.println("Escribe tu nuevo nombre: ");
+      break;
+  }
+}
+
+void procesarMenu(String entrada){ 
+  if(entrada.equals("1")){
+    cambiarPantalla(CHAT);
+  }else if(entrada.equals("2")){
+    cambiarPantalla(AJUSTES);
+  }else{
+    Serial.println("Comando invalido");
+  }
+}
+
+void procesarChat(String entrada){
+  if(entrada.startsWith("/")){
+    if(entrada.equals("/")){
+      Serial.println("Comandos aceptados actualmente:");
+      Serial.println("/nombre [nombre]: cambia el nombre del remitente o devuelve el nombre actual");
+      Serial.println("/sala [nombre de sala]: cambia la sala o devuelve la sala actual");
+      Serial.println("/salas: lista las salas disponibles actualmente");
+      Serial.println("/historial: devuelve los ultimos 5 mensajes enviados");
+      Serial.println("/menu: sal al menu principal");
+    }else if(entrada.startsWith("/nombre ") || entrada.equals("/nombre")){
+      nombre(entrada);
+    }else if(entrada.startsWith("/sala ") || entrada.equals("/sala")){
+      cambioSala(entrada);
+    }else if(entrada.startsWith("/salas ") || entrada.equals("/salas")){
+      printSalas(); 
+    }else if(entrada.startsWith("/historial ") || entrada.equals("/historial")){
+      printHistorial(); 
+    }else if(entrada.startsWith("/menu ") || entrada.equals("/menu")){
+      cambiarPantalla(MENU); 
+    }else{
+      Serial.println("El comando introducido no esta registrado escribe '/' para recibir el listado de comandos disponibles");
+    }
+  }else{
+    guardarMsg(entrada);
+  }
+}
+
+void procesarAjustes(String entrada){  
+  if(entrada.equals("1")){
+    cambiarPantalla(EDITAR_NOMBRE);
+  }else if(entrada.equals("0")){
+    cambiarPantalla(MENU);
+  }else{
+    Serial.println("Comando invalido");
+  }
+}
+
+void procesarEditarNombre(String entrada){
+  if(nombreUsuario.equals(entrada) || entrada.length() == 0){
+    Serial.println("Tu nombre actual ya es: " + nombreUsuario);
+  }else{ 
+    Serial.println("Nombre registrado: " + entrada);
+    nombreUsuario = entrada;
+  }
+  cambiarPantalla(AJUSTES);
 }
