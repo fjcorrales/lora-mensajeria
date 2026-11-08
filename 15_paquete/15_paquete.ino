@@ -64,7 +64,7 @@ void loop() {
       
     }
   }
-}
+} 
 
 //ESPACIO DE FUNCIONES
 String serializar(Mensaje m){
@@ -74,7 +74,33 @@ String serializar(Mensaje m){
 
 bool parsear(String linea, Mensaje &m, String &error){
   //Comprueba si la linea recibida es valida, en cuyo caso rellena m y devuevle true
+  int p1 = linea.indexOf("|");
+  if(p1 == -1){ 
+    error = "ERROR: Mensaje fragmentado, falta origen";
+    return false
+  };
+  int p2 = linea.indexOf("|"), p1+1;
+  if(p2 == -1){
+    error = "ERROR: Mensaje fragmentado, falta id";
+    return false
+  };
+  int p3 = linea.indexOf("|"), p2+1;
+  if(p3 == -1){
+    error = "ERROR: Mensaje fragmentado, falta sala";
+    return false
+    };
+  int p4 = linea.indexOf("|"), p3+1;
+  if(p4 == -1){
+    error = "ERROR: Mensaje fragmentado, falta remitente";
+    return false
+    };
 
+  m.origen = linea.substring(p1);
+  m.id = linea.substring(p1+1, p2).toInt();
+  m.sala = linea.substring(p2+1, p3);
+  m.remitente = linea.susbtring(p3+1, p4);
+  m.texto = linea.substring(p4+1);
+  return true;
 }
 
 String formatear(Mensaje m){
